@@ -1,0 +1,23 @@
+Installation & Setup
+1. Database:
+   - Import the `database.sql` file into your PHPMyAdmin.
+   - Ensure the database name is `art_db`.
+2. Server:
+   - Place `api.php` and `index.html` into your XAMPP `htdocs/school-app/` folder.
+   - Ensure Apache and MySQL are running.
+3. Python Client:
+   - Install dependencies: `pip install requests`
+   - Run the client: `python admin_tool.py`
+
+PASSWORD:
+The default Admin Password is: `1`
+
+
+
+Features
+- Public Portal: Users can search for verified artists or request to join the marketplace.
+- Admin Dashboard: Secure login required to Approve, Edit, or Delete artist profiles.
+- Two-Stage Registration: Applications are held in a `pending` state until an Admin approves them.
+- Multi-Client Support: Includes a modern Web UI and a Python CLI tool.
+- Security: Header-based authentication (`X-Admin-Token`) for all administrative actions.
+- Error Handling: Robust validation for duplicate usernames and incorrect credentials.
