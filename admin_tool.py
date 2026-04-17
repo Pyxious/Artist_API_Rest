@@ -36,7 +36,7 @@ def main():
                 b = input("Enter your Bio: ")
                 res = requests.post(f"{URL}?action=request", json={"username": u, "bio": b})
                 data = res.json()
-                if res.status_code == 201:
+                if res.status_code == 200:
                     print(f"\n✅ Success: {data.get('message')}")
                 else:
                     print(f"\n❌ Error: {data.get('error')}")
@@ -53,7 +53,9 @@ def main():
 
         else: # ADMIN MODE
             
-            print("      OFFICIAL ADMIN DASHBOARD")   
+            print("\n" + "="*42)
+            print("         OFFICIAL ADMIN DASHBOARD")
+            print("="*42)   
             print("1. View All Approved Artists")
             print("2. View All Pending Applications")
             print("3. APPROVE A USER (Numbered List)")
@@ -64,30 +66,65 @@ def main():
 
             if choice == "1": # VIEW APPROVED
                 res = requests.get(URL, headers=get_headers())
-                print("\n✅ APPROVED ARTISTS:", res.json())
+                approved = res.json()
+
+                print("\n✅ APPROVED ARTISTS:")
+
+                if not isinstance(approved, list) or len(approved) == 0:
+                    print("--- No approved artists ---")
+                else:
+                    print("------------------------------------------------------------")
+                    print(f"{'No.':<5} | {'Username':<15} | {'Bio':<30}")
+                    print("------------------------------------------------------------")
+
+                    for i, user in enumerate(approved, 1):
+                        print(f"{i:<5} | {user['username']:<15} | {user['bio']:<30}")
+
+                    print("------------------------------------------------------------\n")
+                            
 
             elif choice == "2": # VIEW PENDING
                 res = requests.get(f"{URL}?action=pending", headers=get_headers())
-                print("\n PENDING REQUESTS:", res.json())
+                pending = res.json()
+
+                print("\n⏳ PENDING REQUESTS:")
+
+                if not isinstance(pending, list) or len(pending) == 0:
+                    print("--- No pending requests ---")
+                else:
+                    print("------------------------------------------------------------")
+                    print(f"{'No.':<5} | {'Username':<15} | {'Bio':<30}")
+                    print("------------------------------------------------------------")
+
+                    for i, user in enumerate(pending, 1):
+                        print(f"{i:<5} | {user['username']:<15} | {user['bio']:<30}")
+
+                    print("------------------------------------------------------------\n")
 
             elif choice == "3": # APPROVE BY NUMBER
-                print("\nFetching pending applications...")
+                print("\nFetching pending requests...")
                 res = requests.get(f"{URL}?action=pending", headers=get_headers())
                 pending = res.json()
 
                 if not isinstance(pending, list) or len(pending) == 0:
                     print("\n--- No users are waiting for approval ---")
                 else:
-                    print("\n--- SELECT USER TO APPROVE ---")
+                    print("\n--- SELECT A USER TO APPROVE ---\n")
+                    print("------------------------------------------------------------")
+                    print(f"{'No.':<5} | {'Username':<15} | {'Bio':<30}")
+                    print("------------------------------------------------------------")
+
                     for i, user in enumerate(pending, 1):
-                        print(f"[{i}] @{user['username']} | Bio: {user['bio']}")
-                    
+                        print(f"{i:<5} | {user['username']:<15} | {user['bio']:<30}")
+
+                    print("------------------------------------------------------------")
+
                     try:
                         idx = int(input("\nEnter NUMBER to approve (0 to cancel): ")) - 1
                         if idx >= 0:
                             target = pending[idx]['username']
                             res_app = requests.post(f"{URL}?action=approve&username={target}", headers=get_headers())
-                            print(f"Server: {res_app.json().get('message')}")
+                            print(f"Server: ✅ {res_app.json().get('message')}")
                     except: print("❌ Invalid selection.")
 
             elif choice == "4": # EDIT BY NUMBER
@@ -98,9 +135,15 @@ def main():
                 if not isinstance(approved, list) or len(approved) == 0:
                     print("\n--- The approved list is empty ---")
                 else:
-                    print("\n--- SELECT ARTIST TO EDIT ---")
+                    print("\n--- SELECT ARTIST TO EDIT ---\n")
+                    print("------------------------------------------------------------")
+                    print(f"{'No.':<5} | {'Username':<15} | {'Current Bio':<30}")
+                    print("------------------------------------------------------------")
+
                     for i, user in enumerate(approved, 1):
-                        print(f"[{i}] @{user['username']} | Current Bio: {user['bio']}")
+                        print(f"{i:<5} | {user['username']:<15} | {user['bio']:<30}")
+
+                    print("------------------------------------------------------------")
                     
                     try:
                         idx = int(input("\nEnter NUMBER to edit (0 to cancel): ")) - 1
@@ -108,7 +151,7 @@ def main():
                             target = approved[idx]['username']
                             new_bio = input(f"Enter NEW bio for @{target}: ")
                             res_edit = requests.put(URL, headers=get_headers(), json={"username": target, "bio": new_bio})
-                            print(f"Server: {res_edit.json().get('message')}")
+                            print(f"Server: ✅ {res_edit.json().get('message')}")
                     except: print("❌ Invalid selection.")
 
             elif choice == "5": # DELETE BY NUMBER
@@ -119,9 +162,15 @@ def main():
                 if not isinstance(approved, list) or len(approved) == 0:
                     print("\n--- The approved list is empty ---")
                 else:
-                    print("\n--- SELECT ARTIST TO DELETE ---")
+                    print("\n--- SELECT ARTIST TO DELETE ---\n")
+                    print("------------------------------------------------------------")
+                    print(f"{'No.':<5} | {'Username':<15} | {'Bio':<30}")
+                    print("------------------------------------------------------------")
+
                     for i, user in enumerate(approved, 1):
-                        print(f"[{i}] @{user['username']}")
+                        print(f"{i:<5} | {user['username']:<15} | {user['bio']:<30}")
+
+                    print("------------------------------------------------------------")
                     
                     try:
                         idx = int(input("\nEnter NUMBER to delete (0 to cancel): ")) - 1
@@ -130,7 +179,7 @@ def main():
                             confirm = input(f"Are you sure you want to delete @{target}? (y/n): ")
                             if confirm.lower() == 'y':
                                 res_del = requests.delete(f"{URL}?username={target}", headers=get_headers())
-                                print(f"Server: {res_del.json().get('message')}")
+                                print(f"Server: ✅ {res_del.json().get('message')}")
                     except: print("❌ Invalid selection.")
 
             elif choice == "6":
